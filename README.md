@@ -1,25 +1,13 @@
-# IPSC Nationals 2027 logo voting website
+# IPSC Nationals 2027 — Logo Voting Website
 
-## What's included
-- `index.html`: public, mobile-friendly ballot with three logo choices and optional notes.
-- `admin.html`: organizer-only vote counts, percentages, comments, and CSV export.
-- `assets/`: artwork cropped from the two uploaded images.
-- `supabase.sql`: database tables and row-level security policies.
-- `config.js`: connection settings to fill in.
+Five choices, required voter name, optional notes, repeat votes allowed, private admin dashboard and CSV export.
 
-## Publish (GitHub Pages + Supabase)
-1. Create a free project at https://supabase.com and open **SQL Editor**. Run the contents of `supabase.sql`.
-2. In Supabase **Authentication > Users**, create/invite the organizer's account. Copy its user UUID and run:
-   `insert into public.admins(user_id) values ('THE-USER-UUID');`
-3. In **Authentication > URL Configuration**, set Site URL to your eventual GitHub Pages voting URL. Add `https://YOURNAME.github.io/YOUR-REPO/admin.html` to Redirect URLs. For passwordless login, configure the email provider as needed and make sure the organizer can receive OTP/magic-link emails. In some Supabase configurations, `shouldCreateUser:false` means the admin must be created in advance.
-4. Copy **Project URL** and **publishable/anon key** from Supabase API settings into `config.js`. Never use a secret/service-role key.
-5. Create a **new public GitHub repository** for the poll and upload the files at the repository root. Under **Settings > Pages**, deploy from `main` branch / root. Wait for Pages to publish.
-6. Share `https://YOURNAME.github.io/YOUR-REPO/` for voting. Keep `.../admin.html` for organizer access. The admin URL itself is not a secret; database row-level security enforces privacy.
-7. Test one public vote and a login from the approved admin email before sharing widely.
+**This is not a Google Form and is not live yet.** This is a static website requiring a GitHub Pages (or other static hosting) deployment and a Supabase project for persistent vote storage.
 
-## Important limitations
-- Duplicate protection uses browser local storage plus a unique browser-generated token. It blocks straightforward repeat votes in the same browser but **cannot enforce one vote per human**. Someone using another browser/device or clearing browser data can vote again. For stronger protection, add email verification, CAPTCHA and server-side rate limiting / edge function.
-- The public insert endpoint is exposed to spam/automated votes; for a high-stakes election, implement server-side anti-abuse controls before publication.
-- The dashboard fetches up to 10,000 votes in a single query; Supabase default API max rows may be 1,000. For large polls, implement paginated reads or server-side aggregates.
-- Admins cannot read data unless their auth UUID is present in `public.admins`. Public users cannot read votes or notes.
-- Supabase project, admin account, GitHub repository and credentials must be configured by the site owner. The site is **not live** until these steps are done.
+1. Create a free Supabase project and run `supabase.sql` in SQL Editor. (For a previously configured database, migration is needed; this SQL is intended for a fresh project.)
+2. Create an administrator under Authentication > Users, then insert their UUID into `public.admins` with the commented SQL command.
+3. Copy the Supabase Project URL and publishable/anon key into `config.js`. Never use a service role key.
+4. Upload **all** files, including `assets/`, to the root of a public GitHub repository and enable GitHub Pages for the main branch root.
+5. Configure Supabase Auth URL settings for your site's `/admin.html` page. Share the public `index.html` URL with voters; keep `admin.html` for authorized admins.
+
+**Privacy:** Names and notes are not publicly readable via the configured database rules. Anyone with the link can submit multiple votes. A name is self-reported, not verified. Only approved administrator accounts can read submissions. For large voting volumes, the admin view currently loads the newest 10,000 records.
