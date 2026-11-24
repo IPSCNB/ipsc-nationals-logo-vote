@@ -1,6 +1,6 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const c=window.VOTE_CONFIG, db=createClient(c.supabaseUrl,c.supabaseAnonKey), login=document.getElementById('login'),dashboard=document.getElementById('dashboard');let rows=[];
-const labels={'moose-crest':'Moose Crest','moose-modern':'Modern Moose','lighthouse':'Lighthouse','raccoon':'Raccoon Mascot','action':'Action Shooters'};
+const labels={'moose-crest':'Moose Crest','moose-modern':'Modern Moose','lighthouse':'Lighthouse','raccoon':'Raccoon Mascot','action':'Action Shooters','moose-silver':'Silver Moose Crest'};
 const safe=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 async function show(){const {data:{session}}=await db.auth.getSession();if(!session){login.classList.remove('hidden');dashboard.classList.add('hidden');return}login.classList.add('hidden');dashboard.classList.remove('hidden');await refresh()}
 async function refresh(){const {data,error}=await db.from('votes').select('logo_id,voter_name,notes,created_at').order('created_at',{ascending:false}).limit(10000);if(error){document.getElementById('stats').textContent='Access denied or data unavailable. Confirm your email is listed in the admins table.';document.getElementById('notesList').textContent=error.message;return}rows=data||[];document.getElementById('total').textContent=`${rows.length} total votes`;
